@@ -1,6 +1,6 @@
 /*jslint node: true */
 'use strict';
-const jumioApi = require('./jumio_api.js');
+const jumioApi = require('./mock_jumio_api.js');
 const db = require('byteballcore/db');
 
 

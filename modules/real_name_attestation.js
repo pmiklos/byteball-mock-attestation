@@ -4,7 +4,7 @@ const conf = require('byteballcore/conf');
 const objectHash = require('byteballcore/object_hash.js');
 const db = require('byteballcore/db');
 const notifications = require('./notifications');
-const jumioApi = require('./jumio_api.js');
+const jumioApi = require('./mock_jumio_api.js');
 const countries = require("i18n-iso-countries");
 
 var assocAttestorAddresses = {};

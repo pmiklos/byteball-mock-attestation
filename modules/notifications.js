@@ -17,22 +17,24 @@ if (conf.useSmtp) {
 
 function notifyAdmin(subject, body) {
 	console.log('notifyAdmin:\n' + subject + '\n' + body);
-	if (conf.useSmtp) {
-		server.send({
-			text: body,
-			from: 'Server <' + conf.from_email + '>',
-			to: 'You <' + conf.admin_email + '>',
-			subject: subject
-		}, function (err) {
-			if (err) console.error(new Error(err));
-		});
-	} else {
-		mail.sendmail({
-			to: conf.admin_email,
-			from: conf.from_email,
-			subject: subject,
-			body: body
-		});
+	if (conf.admin_email) {
+		if (conf.useSmtp) {
+			server.send({
+				text: body,
+				from: 'Server <' + conf.from_email + '>',
+				to: 'You <' + conf.admin_email + '>',
+				subject: subject
+			}, function (err) {
+				if (err) console.error(new Error(err));
+			});
+		} else {
+			mail.sendmail({
+				to: conf.admin_email,
+				from: conf.from_email,
+				subject: subject,
+				body: body
+			});
+		}
 	}
 }
 

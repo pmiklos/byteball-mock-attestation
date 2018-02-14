@@ -10,7 +10,7 @@ const texts = require('./modules/texts.js');
 const validationUtils = require('byteballcore/validation_utils');
 const notifications = require('./modules/notifications');
 const conversion = require('./modules/conversion.js');
-const jumioApi = require('./modules/jumio_api.js');
+const jumioApi = require('./modules/mock_jumio_api.js');
 const jumio = require('./modules/jumio.js');
 const realNameAttestation = require('./modules/real_name_attestation.js');
 const reward = require('./modules/reward.js');
@@ -448,8 +448,6 @@ eventBus.once('headless_wallet_ready', () => {
 					console.log('== distribution address: '+address3);
 					reward.distribution_address = address3;
 					
-					server.listen(conf.webPort);
-
 					setInterval(jumio.retryInitScans, 60*1000);
 					setInterval(realNameAttestation.retryPostingAttestations, 10*1000);
 					setInterval(reward.retrySendingRewards, 10*1000);
