@@ -2,12 +2,12 @@
 'use strict';
 const crypto = require('crypto');
 const moment = require('moment');
-const constants = require('byteballcore/constants.js');
-const conf = require('byteballcore/conf');
-const db = require('byteballcore/db');
-const eventBus = require('byteballcore/event_bus.js');
+const constants = require('ocore/constants.js');
+const conf = require('ocore/conf');
+const db = require('ocore/db');
+const eventBus = require('ocore/event_bus.js');
 const texts = require('./modules/texts.js');
-const validationUtils = require('byteballcore/validation_utils');
+const validationUtils = require('ocore/validation_utils');
 const notifications = require('./modules/notifications');
 const conversion = require('./modules/conversion.js');
 const jumioApi = require('./modules/mock_jumio_api.js');
@@ -40,7 +40,7 @@ function readUserInfo(device_address, cb) {
 }
 
 function readOrAssignReceivingAddress(device_address, user_address, cb){
-	const mutex = require('byteballcore/mutex.js');
+	const mutex = require('ocore/mutex.js');
 	mutex.lock([device_address], unlock => {
 		db.query(
 			"SELECT receiving_address, post_publicly, "+db.getUnixTimestamp('last_price_date')+" AS price_ts \n\
@@ -54,7 +54,7 @@ function readOrAssignReceivingAddress(device_address, user_address, cb){
 					cb(row.receiving_address, row.post_publicly);
 					return unlock();
 				}
-				const headlessWallet = require('headless-byteball');
+				const headlessWallet = require('headless-obyte');
 				headlessWallet.issueNextMainAddress(receiving_address => {
 					db.query(
 						"INSERT INTO receiving_addresses (device_address, user_address, receiving_address) VALUES(?,?,?)",
@@ -78,7 +78,7 @@ function updatePrice(receiving_address, price, cb){
 }
 
 function moveFundsToAttestorAddresses(){
-	let network = require('byteballcore/network.js');
+	let network = require('ocore/network.js');
 	if (network.isCatchingUp())
 		return;
 	console.log('moveFundsToAttestorAddresses');
@@ -92,7 +92,7 @@ function moveFundsToAttestorAddresses(){
 			if (rows.length === 0)
 				return;
 			let arrAddresses = rows.map(row => row.receiving_address);
-			let headlessWallet = require('headless-byteball');
+			let headlessWallet = require('headless-obyte');
 			headlessWallet.sendMultiPayment({
 				asset: null,
 				to_address: realNameAttestation.assocAttestorAddresses[Date.now()%2 ? 'real name' : 'nonus'],
@@ -153,7 +153,7 @@ function getCountryByIp(ip){
 }
 
 function handleJumioData(transaction_id, body){
-	let device = require('byteballcore/device.js');
+	let device = require('ocore/device.js');
 	let data = body.transaction ? jumioApi.convertRestResponseToCallbackFormat(body) : body;
 	if (typeof data.identityVerification === 'string') // contrary to docs, it is a string, not an object
 		data.identityVerification = JSON.parse(data.identityVerification);
@@ -191,7 +191,7 @@ function handleJumioData(transaction_id, body){
 			}
 			db.query("INSERT "+db.getIgnore()+" INTO attestation_units (transaction_id, attestation_type) VALUES (?, 'real name')", [transaction_id], () => {
 				let [attestation, src_profile] = realNameAttestation.getAttestationPayloadAndSrcProfile(row.user_address, data, row.post_publicly);
-				if (!row.post_publicly)
+				if (row.post_publicly)
 					realNameAttestation.postAndWriteAttestation(transaction_id, 'real name', realNameAttestation.assocAttestorAddresses['real name'], attestation, src_profile);
 				if (bNonUS)
 					setTimeout(() => {
@@ -239,7 +239,7 @@ function handleJumioData(transaction_id, body){
 }
 
 function respond(from_address, text, response){
-	let device = require('byteballcore/device.js');
+	let device = require('ocore/device.js');
 	readUserInfo(from_address, userInfo => {
 		
 		function checkUserAddress(onDone){
@@ -328,7 +328,7 @@ eventBus.on('paired', from_address => {
 });
 
 eventBus.once('headless_and_rates_ready', () => {
-	const headlessWallet = require('headless-byteball');
+	const headlessWallet = require('headless-obyte');
 	if (conf.bRunWitness){
 		require('byteball-witness');
 		eventBus.emit('headless_wallet_ready');
@@ -340,7 +340,7 @@ eventBus.once('headless_and_rates_ready', () => {
 	});
 	
 	eventBus.on('new_my_transactions', arrUnits => {
-		let device = require('byteballcore/device.js');
+		let device = require('ocore/device.js');
 		db.query(
 			"SELECT amount, asset, device_address, receiving_address, user_address, unit, price, "+db.getUnixTimestamp('last_price_date')+" AS price_ts \n\
 			FROM outputs CROSS JOIN receiving_addresses ON outputs.address=receiving_addresses.receiving_address \n\
@@ -396,7 +396,7 @@ eventBus.once('headless_and_rates_ready', () => {
 	});
 	
 	eventBus.on('my_transactions_became_stable', arrUnits => {
-		let device = require('byteballcore/device.js');
+		let device = require('ocore/device.js');
 		db.query(
 			"SELECT transaction_id, device_address, user_address \n\
 			FROM transactions JOIN receiving_addresses USING(receiving_address) \n\
@@ -437,7 +437,7 @@ eventBus.once('headless_wallet_ready', () => {
 		if (error)
 			throw new Error(error);
 		
-		let headlessWallet = require('headless-byteball');
+		let headlessWallet = require('headless-obyte');
 		headlessWallet.issueOrSelectAddressByIndex(0, 0, address1 => {
 			console.log('== real name attestation address: '+address1);
 			realNameAttestation.assocAttestorAddresses['real name'] = address1;
@@ -448,11 +448,11 @@ eventBus.once('headless_wallet_ready', () => {
 					console.log('== distribution address: '+address3);
 					reward.distribution_address = address3;
 					
-					setInterval(jumio.retryInitScans, 60*1000);
+					setInterval(jumio.retryInitScans, 10*1000);
 					setInterval(realNameAttestation.retryPostingAttestations, 10*1000);
 					setInterval(reward.retrySendingRewards, 10*1000);
-					setInterval(pollAndHandleJumioScanData, 60*1000);
-					setInterval(moveFundsToAttestorAddresses, 60*1000);
+					setInterval(pollAndHandleJumioScanData, 10*1000);
+					setInterval(moveFundsToAttestorAddresses, 10*1000);
 				});
 			});
 		});

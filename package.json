@@ -4,23 +4,24 @@
   "description": "A bot for attestation of real names through Jumio",
   "main": "attestation.js",
   "scripts": {
-	  "postinstall": "byteball-devnet-config || echo 'Not a development environment'",
-	  "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstallxxxx": "byteball-devnet-config || echo 'Not a development environment'",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "tony",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.5.0",
-    "body-parser": "^1.18.2",
+    "async": "^2.6.2",
+    "body-parser": "^1.19.0",
     "byteball-devnet-config": "github:pmiklos/byteball-devnet-config",
-    "byteball-witness": "git+https://github.com/byteball/byteball-witness.git",
-    "byteballcore": "git+https://github.com/byteball/byteballcore.git",
     "emailjs": "^1.0.10",
-    "express": "^4.16.2",
-    "headless-byteball": "git+https://github.com/byteball/headless-byteball.git",
-    "i18n-iso-countries": "^3.3.0",
-    "maxmind": "^2.4.0",
-    "moment": "^2.18.1",
-    "request": "^2.81.0"
+    "express": "^4.17.1",
+    "headless-obyte": "git+https://github.com/byteball/headless-obyte.git",
+    "i18n-iso-countries": "^3.7.8",
+    "maxmind": "^2.12.0",
+    "moment": "^2.24.0",
+    "obyte-devnet-config": "github:pmiklos/byteball-devnet-config",
+    "obyte-witness": "git+https://github.com/byteball/obyte-witness.git",
+    "ocore": "git+https://github.com/byteball/ocore.git",
+    "request": "^2.88.0"
   }
 }

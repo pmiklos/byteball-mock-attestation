@@ -1,12 +1,12 @@
 /*jslint node: true */
 'use strict';
 const jumioApi = require('./mock_jumio_api.js');
-const db = require('byteballcore/db');
+const db = require('ocore/db');
 
 
 function initAndWriteScan(transaction_id, device_address, user_address, onDone){
-	const mutex = require('byteballcore/mutex.js');
-	const device = require('byteballcore/device.js');
+	const mutex = require('ocore/mutex.js');
+	const device = require('ocore/device.js');
 	mutex.lock(['tx-'+transaction_id], function(unlock){
 		db.query("SELECT jumioIdScanReference FROM transactions WHERE transaction_id=?", [transaction_id], rows => {
 			if (rows[0].jumioIdScanReference){
@@ -64,7 +64,7 @@ function pollJumioScanData(handleData){
 						return;
 					/*if (body === 'PENDING' && !row.scan_complete){
 						db.query("UPDATE transactions SET scan_complete=1 WHERE transaction_id=?", [row.transaction_id]);
-						const device = require('byteballcore/device.js');
+						const device = require('ocore/device.js');
 						device.sendMessageToDevice(row.device_address, 'text', "Please wait while Jumio verifies the images.  We'll let you know as soon as the outcome is known.");
 						return;
 					}*/

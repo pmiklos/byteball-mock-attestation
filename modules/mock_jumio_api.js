@@ -1,9 +1,37 @@
 /*jslint node: true */
 'use strict';
 const request = require('request');
-const conf = require('byteballcore/conf.js');
+const conf = require('ocore/conf.js');
 const notifications = require('./notifications.js');
 
+const documents = {
+	lemmy: {
+		status: "APPROVED_VERIFIED",
+		firstName: "LEMMY",
+		lastName: "KILMISTER",
+		dob: "1945-12-24",
+		gender: "M",
+		issuingCountry: "USA",
+		usState: "NY",
+		number: "987654321",
+		type: "PASSPORT",
+		idSubType: "E_PASSPORT",
+		clientIp: "127.0.0.1"
+	},
+	joe: {
+		status: "APPROVED_VERIFIED",
+		firstName: "JOE",
+		lastName: "BLACK",
+		dob: "1906-06-06",
+		gender: "M",
+		issuingCountry: "USA",
+		usState: "CA",
+		number: "666999666",
+		type: "PASSPORT",
+		idSubType: "E_PASSPORT",
+		clientIp: "127.0.0.1"
+	}
+}
 //require('request-debug')(request);
 
 function sendRestRequest(url, onDone){
@@ -16,19 +44,7 @@ function retrieveScanData(jumioIdScanReference, onDone){
 		transaction: {
 			status: "DONE"
 		},
-		document: {
-			status: "APPROVED_VERIFIED",
-			firstName: "JIMI",
-			lastName: "HENDRIX",
-			dob: "2000-01-01",
-			gender: "M",
-			issuingCountry: "USA",
-			usState: "NY",
-			number: "123456789",
-			type: "PASSPORT",
-			idSubType: "E_PASSPORT",
-			clientIp: "127.0.0.1"
-		},
+		document: documents["joe"],
 		verification: {
 			identityVerification: {
 				similarity: "MATCH",
