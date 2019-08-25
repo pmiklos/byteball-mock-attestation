@@ -1,27 +1,17 @@
 {
-  "name": "byteball-mock-attestation",
+  "name": "obyte-mock-attestation",
   "version": "1.0.0",
   "description": "A bot for attestation of real names through Jumio",
-  "main": "attestation.js",
+  "main": "attest.js",
   "scripts": {
-    "postinstallxxxx": "byteball-devnet-config || echo 'Not a development environment'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "tony",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.6.2",
-    "body-parser": "^1.19.0",
-    "byteball-devnet-config": "github:pmiklos/byteball-devnet-config",
-    "emailjs": "^1.0.10",
-    "express": "^4.17.1",
-    "headless-obyte": "git+https://github.com/byteball/headless-obyte.git",
+    "async": "^2.6.3",
+    "headless-obyte": "git+https://github.com/byteball/headless-obyte.git#aa",
     "i18n-iso-countries": "^3.7.8",
-    "maxmind": "^2.12.0",
-    "moment": "^2.24.0",
-    "obyte-devnet-config": "github:pmiklos/byteball-devnet-config",
-    "obyte-witness": "git+https://github.com/byteball/obyte-witness.git",
-    "ocore": "git+https://github.com/byteball/ocore.git",
-    "request": "^2.88.0"
+    "ocore": "git+https://github.com/byteball/ocore.git#rocks-and-formulas"
   }
 }

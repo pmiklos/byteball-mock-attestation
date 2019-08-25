@@ -243,7 +243,7 @@ function postAndWriteAttestation(device_address, attestor_address, attestation_p
 		if (err) return console.error(err);
 
 		let device = require('ocore/device.js');
-		let text = "Now your real name is attested, see the attestation unit: https://explorer.byteball.org/#" + unit;
+		let text = "Now your real name is attested, see the attestation unit: https://testnetexplorer.obyte.org/#" + unit;
 		if (src_profile) {
 			let private_profile = {
 				unit: unit,
