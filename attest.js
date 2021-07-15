@@ -3,6 +3,7 @@ const conf = require('ocore/conf');
 const objectHash = require('ocore/object_hash.js');
 const countries = require("i18n-iso-countries");
 const eventBus = require('ocore/event_bus.js');
+const ValidationUtils = require("ocore/validation_utils.js");
 
 const documents = {
 	lemmy: {
@@ -258,6 +259,14 @@ function postAndWriteAttestation(device_address, attestor_address, attestation_p
 	});
 }
 
+function handleMessage(device_address, user_address) {
+	if (!ValidationUtils.isValidAddress(user_address.trim()))
+		sendMessageToDevice(device_address, 'To get attestation profile, let me know your Obyte address (use "Insert My Address" button)');
+	const mockRealName = mockJumioResponse(documents['iggy']);
+	let attestation, src_profile;
+	[attestation, src_profile] = getAttestationPayloadAndSrcProfile(user_address.trim(), mockRealName, false);
+	postAndWriteAttestation(device_address, realNameAttestor, attestation, src_profile);
+}
 
 const headlessWallet = require('headless-obyte');
 
@@ -265,11 +274,7 @@ eventBus.once('headless_wallet_ready', () => {
 	headlessWallet.issueOrSelectAddressByIndex(0, 0, realNameAttestor => {
 		console.log('== real name attestation address: ' + realNameAttestor);
 
-		eventBus.on('text', (device_address, user_address) => {
-			const mockRealName = mockJumioResponse(documents['iggy']);
-			let attestation, src_profile;
-			[attestation, src_profile] = getAttestationPayloadAndSrcProfile(user_address.trim(), mockRealName, false);
-			postAndWriteAttestation(device_address, realNameAttestor, attestation, src_profile);
-		});
+		eventBus.on('pair', handleMessage);
+		eventBus.on('text', handleMessage);
 	});
 });
