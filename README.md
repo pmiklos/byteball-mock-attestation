@@ -3,8 +3,7 @@
 ## Installation
 
 ```
-npm install
-npm dedupe # optional, if npm complains about duplicate ocore package
+yarn install
 ```
 
 ## Running the bot
