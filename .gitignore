@@ -105,3 +105,4 @@ typings/
 *.mmdb
 
 package-lock.json
+yarn.lock
