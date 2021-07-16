@@ -101,6 +101,7 @@ typings/
 .yarn-integrity
 
 .idea/
+.vscode/
 
 *.mmdb
 
