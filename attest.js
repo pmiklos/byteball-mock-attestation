@@ -260,8 +260,10 @@ function postAndWriteAttestation(device_address, attestor_address, attestation_p
 }
 
 function handleMessage(device_address, user_address) {
-	if (!ValidationUtils.isValidAddress(user_address.trim()))
-		return sendMessageToDevice(device_address, 'To get attestation profile, let me know your Obyte address (use "Insert My Address" button)');
+	if (!ValidationUtils.isValidAddress(user_address.trim())) {
+		let device = require('ocore/device.js');
+		return device.sendMessageToDevice(device_address, 'To get attestation profile, let me know your Obyte address (use "Insert My Address" button)');
+	}
 	const mockRealName = mockJumioResponse(documents['iggy']);
 	let attestation, src_profile;
 	[attestation, src_profile] = getAttestationPayloadAndSrcProfile(user_address.trim(), mockRealName, false);
