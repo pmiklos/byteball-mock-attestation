@@ -241,9 +241,12 @@ function postAttestation(attestor_address, payload, onDone) {
 
 function postAndWriteAttestation(device_address, attestor_address, attestation_payload, src_profile) {
 	postAttestation(attestor_address, attestation_payload, (err, unit) => {
-		if (err) return console.error(err);
-
 		let device = require('ocore/device.js');
+		if (err){
+			device.sendMessageToDevice(device_address, 'text', err);
+			return console.error(err);
+		}
+
 		let text = "Now your real name is attested, see the attestation unit: https://testnetexplorer.obyte.org/#" + unit;
 		if (src_profile) {
 			let private_profile = {
@@ -259,24 +262,25 @@ function postAndWriteAttestation(device_address, attestor_address, attestation_p
 	});
 }
 
-function handleMessage(device_address, user_address) {
-	if (!ValidationUtils.isValidAddress(user_address.trim())) {
-		let device = require('ocore/device.js');
-		return device.sendMessageToDevice(device_address, 'To get attestation profile, let me know your Obyte address (use "Insert My Address" button)');
-	}
-	const mockRealName = mockJumioResponse(documents['iggy']);
-	let attestation, src_profile;
-	[attestation, src_profile] = getAttestationPayloadAndSrcProfile(user_address.trim(), mockRealName, false);
-	postAndWriteAttestation(device_address, realNameAttestor, attestation, src_profile);
-}
-
 const headlessWallet = require('headless-obyte');
 
 eventBus.once('headless_wallet_ready', () => {
 	headlessWallet.issueOrSelectAddressByIndex(0, 0, realNameAttestor => {
 		console.log('== real name attestation address: ' + realNameAttestor);
 
-		eventBus.on('pair', handleMessage);
+		eventBus.on('paired', handleMessage);
 		eventBus.on('text', handleMessage);
+
+		function handleMessage(device_address, user_address) {
+			if (!ValidationUtils.isValidAddress(user_address.trim())) {
+				let device = require('ocore/device.js');
+				return device.sendMessageToDevice(device_address, 'text', 'To get attestation profile, let me know your Obyte address (use "Insert My Address" button)');
+			}
+			const documentKeys = Object.keys(documents);
+			const mockRealName = mockJumioResponse(documents[documentKeys[Math.floor(documentKeys.length * Math.random())]]);
+			let attestation, src_profile;
+			[attestation, src_profile] = getAttestationPayloadAndSrcProfile(user_address.trim(), mockRealName, false);
+			postAndWriteAttestation(device_address, realNameAttestor, attestation, src_profile);
+		}
 	});
 });
